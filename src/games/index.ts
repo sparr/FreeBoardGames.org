@@ -1,4 +1,5 @@
 import { IGameModeInfo } from 'components/App/Game/GameModePicker';
+import { EighteenEUGameDef } from './18eu';
 import { chessGameDef } from './chess';
 import { seabattleGameDef } from './seabattle';
 import { tictactoeGameDef } from './tictactoe';
@@ -14,6 +15,7 @@ import { hangmanGameDef } from './hangman';
 
 // Add new games here
 export const GAMES_MAP: IGameDefMap = {
+  "18eu": EighteenEUGameDef,
   chess: chessGameDef,
   seabattle: seabattleGameDef,
   tictactoe: tictactoeGameDef,
@@ -31,6 +33,7 @@ export const GAMES_MAP: IGameDefMap = {
 // Order roughly by popularity.
 // See https://stats.freeboardgames.org
 export const GAMES_LIST: IGameDef[] = [
+  GAMES_MAP["18eu"],
   GAMES_MAP.takesix,
   GAMES_MAP.chess,
   GAMES_MAP.secretcodes,

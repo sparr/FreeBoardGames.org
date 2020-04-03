@@ -1,0 +1,204 @@
+Phases:
+    Setup
+        randomize player order
+        | Number of Players |   2  |   3  |   4  |   5  |   6  |
+        | Initial Cash      | £750 | £450 | £350 | £300 | £250 |
+        M hexes get M tokens, $120 side up
+        5 P trains in pool
+
+    Minor Company Initial Sale
+        no stock, owned in whole by one player
+        starts with 2-train and no money
+        always pay half dividend
+        turn order is player order
+        moves:
+            if no company picked
+                pick a company
+            if company picked
+                make a bid ($100+) or
+                pass
+            if auction started
+                make a bid (+$5+) or
+                pass out of the auction
+                continues until last bidder wins
+            if everyone declines to start auction for picked company
+                buy outright for $90 or
+                pass
+                if everyone passes at $90
+                    buy outright for $80 or
+                    pass
+                    if ... everyone passes at $10
+                        auctioneer gets it for $0
+
+    Operating Round
+        minor companies operate 1 to 15
+        corps operate in descending order of stock price
+            ties broken in favor of rightmost token
+            same space ties broken in favor of top token
+                top token was last to reach the spot?
+        at any time (??) a corp may buy or sell its own stock with the pool
+            cannot do both in one round
+            sell treasury stock to pool at market value, lower value
+            buy pool stock to treasury at market value
+        1. lay or upgrade track
+            moves:
+                lay
+                upgrade
+                    might remove duple tokens when city halves merge
+                pass
+            one tile per OR
+                two yellow in first OR
+            corps can upgrade tiles, minors cannot
+            missing upgrade tiles can make upgrade impossible
+            new track must extend a legal route of the operating company
+            no route? must make first tile on token city
+
+        2. place token
+        3. train operation and earning calculation 
+            1. discard trains to pool if over phase liit
+            2. calculate earnings
+                must be maximum possible earnings in total, not for each train
+        4. dividend
+            moves:
+                whole
+                half
+                    minor always does half
+                    round toward paying players
+                withhold
+        5. share price adjustment
+                withhold, price goes down
+                pay more than value, price goes up
+                pay some, less than value, price stays
+                pay value, ??
+        6. train purchase
+            only if the minor/corp operated
+            only if under the train limit
+            may purchase from bank, corp, minor
+                min price $1 from corp or minor
+                    corp with $0 can buy train from corp/minor using president's funds(!?!)
+                        pres may not sell stock here to raise funds, cash on hand only
+            may trigger phase change
+                do phase change stuff, like rust trains
+                FIXME turn order for train discard over train limit unclear
+            may purchase more than one, then more after phase change
+                only one pullman from pool per corp/minor per round
+                corp/minor can't own 2+ pullman
+            can voluntarily discard pullman
+                must be at train limit
+                must be first train purchase action
+                must immediately follow up with train purchase
+            corp/minor that sells train and keeps just a pullman loses pullman
+            train ownership is mandatory for corporations
+                must buy a train if you operate and don't have one, even with no run
+                even if it means buying a cheaper train than you would want
+                Emergency Money Raising
+                    corp president uses own money to supplement corp money
+                    must buy cheapest available non-pullman train from bank or pool
+                    may not sell treasury stock
+                    president may sell owned shares
+                        normal limits on sales
+                        how could non-operation limit apply to current company? rules say so, but doesn't it have to be operating to get to this point?
+                        may not sell enough to give away presidency of current company
+                        may give away presidency of other companies
+                        if you still can't afford a train, you're bankrupt
+                            holdings go to pool
+                                can violate pool share limits
+                            presidencies go to next eligible player
+                                corps with no president candidate (all 1-share holdings) dissolve
+                                    all shares are removed to treasury
+                                    trains go to pool
+                                    tokens removed
+                                new president must finish emergency money raising with their own funds plus whatever the bankrupt player raised
+
+
+
+    Stock Round
+        turn order starts with priority marker from previous stock round
+        moves in one turn:
+            sell stock
+                as much at once as you want
+                must sell if minor merging put player over 60% ownership limit
+                    unless corp has not yet operated
+                can't sell president's share
+                can't sell same company twice
+                adjust price after
+                adjust ownership/president after
+            buy stock (then no more selling)
+                from corp treasury or
+                from pool or
+                to start new corp
+                    set starting value
+                    pay double starting value into corp treasury
+                    must also convert a minor company to a share if before phase 5
+                        minor company assets go to corp
+                        can't start a corp if out of minors
+                        minor token replaced by corp token
+                        corp pays $400 for 4 additional tokens
+                    after phase 5
+                        corp token goes in any open city
+                            may be a city with no track
+                            cannot start if no cities open
+                        FIXME unclear who/when shares 3-4-5 can be bought
+                        after corp floats
+                            remaining shares go to pool
+                            5x starting value goes to corp from bank
+                            corp pays $400 for 4 additional tokens
+
+                enforce share and cert limits
+            trade minor for corp share
+                counts as a buy
+                minor must be CONNECTED to corp
+                corp must have started this round, or not floated yet from previous round(s)
+            pass
+        buy and sell can both change a presidency
+            tie for new president go to whoever is closest after current president in turn order
+        keep looping through turn order until everyone passes in a row
+        once 50% of a corp is owned, corp floats
+            start and float both before or after phase 5
+                unsold shares go in corp treasury
+            start before, float after
+                unsold shares go to pool
+                bank pays corp 5x starting value
+
+        first player to pass in last round of passes gets priority marker
+        adjust corp share prices (??)
+        corps over train limit must discard trains, turn order unclear
+
+    Minor Company Final Exchange Round
+        happens before first stock round after phase 5 begins
+        turn order starts with buyer of first 5-train
+        moves:
+            convert minors to shares:
+                choose a minor
+                    choose a corp CONNECTED to the minor
+                        if the corp has stock in treasury
+                            player gets one
+                            corp can float due to this
+                            minor assets go to corp
+                            corp may exceed train limit temporarily
+                            if corp has a token available, may replace minor token with corp token
+                            if not, or if replacement declined, minor token removed
+                        elseif corp has stock in pool
+                            player gets one
+                            minor cash goes to bank, trains to pool
+                            minor token removed
+                        else
+                            minor cash and trains to bank, token removed
+                    no connected corp
+                        minor cash and trains to bank, token removed
+
+                pass
+                    only if out of minors
+            resolve train limit:
+                turn order here is unclear
+                skip players with no corps with trains to return
+                moves:
+                    choose train to return
+                        pullman must go first
+
+    Game End
+        after last OR after bank runs out of money
+        cash + stock value = score
+        early win if everyone else goes bankrupt
+            
+
