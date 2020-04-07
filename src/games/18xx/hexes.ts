@@ -27,7 +27,7 @@ export type PositionID = Flavor<number, 'PositionID'>;
 //  flat sides are 0-5 NE E SE SW W NW
 export type HexDirection = 0 | 1 | 2 | 3 | 4 | 5;
 
-// places a train might stop or change direction, cities and towns and junctions
+// places a train might stop, cities and towns
 type OptionalStops =
   | { stop?: never; stops?: never }
   | { stop: TileStopType; stops?: never }

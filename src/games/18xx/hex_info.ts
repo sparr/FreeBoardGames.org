@@ -1,8 +1,5 @@
 import * as hexes from './hexes';
 
-var mh: hexes.MapHex = {color: "light green", name: "Amsterdam", letters: "Y", stop: {tokens:1, tokenLabels: ["12"]}};
-mh.color = "foo";
-
 // prettier-ignore
 export var mapHexList: hexes.MapHexList = {
   // generic map
