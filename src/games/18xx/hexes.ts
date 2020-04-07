@@ -18,35 +18,37 @@ export interface MapHexList {
   [key: string]: MapHex | MultiMapHex;
 }
 
-// Utility types to allow singular or plural key and value(s)
-type HasTowns = { town: TileTown; towns: never } | { town: never; towns: Array<TileTown> };
-type HasCities = { city: TileCity; cities: never } | { city: never; cities: Array<TileCity> };
-
 // Flavored types to provide assignment safety
 export type HexID = Flavor<string, 'HexID'>;
 export type PositionID = Flavor<number, 'PositionID'>;
 
-// 0 is "here"
-// 1-6 depend on map orientation
-//  flat tops  are 1-6 N NE SE S SW NW
-//  flat sides are 1-6 NE E SE SW W NW
-export type HexDirection = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+// 0-5 depend on map orientation
+//  flat tops  are 0-5 N NE SE S SW NW
+//  flat sides are 0-5 NE E SE SW W NW
+export type HexDirection = 0 | 1 | 2 | 3 | 4 | 5;
+
+// places a train might stop or change direction, cities and towns and junctions
+type OptionalStops =
+  | { stop?: never; stops?: never }
+  | { stop: TileStopType; stops?: never }
+  | { stop?: never; stops: Array<TileStopType> };
 
 // The base Hex type are common features found on map hexes and track tiles
 export type Hex = {
   // A tile might be known by different IDs in different databases
-  id: HexID;
-  fwtwrID?: HexID;
-  bwsID?: HexID;
-  altIDs?: {fwtwr: Array<HexID>; bws: Array<HexID>;};
+  id?: HexID;
+  fwtwrID?: HexID; // http://www.fwtwr.com/18xx/tiles/index.asp
+  bwsID?: HexID; // http://www.diogenes.sacramento.ca.us/18xx_net/tiles/index.htm
+  gameIDs?: { [key: string]: HexID }; // keys are game names
 
   //TODO: extend TColor to include multi-color / striped tile backgrounds
   color: types.TColor;
+  border?: types.TColor;
 
-  // connections between two edges of the tile
-  edgeConnections?: Array<TileConnection>;
+  // connections between two edges or locations on the tile
+  connections?: Array<TileConnection>;
 
-  // connections leading from an edge of the tile to an external destination
+  // edge connections for this offboard location
   offboardConnections?: Array<number>;
 
   // named tiles include cities and other prominent locations
@@ -65,16 +67,10 @@ export type Hex = {
 
   // taken from online sources
   typicalUpgrades?: Array<HexID>;
-} & HasTowns &
-  HasCities;
+} & OptionalStops;
 
 // A pre-printed hex on the board
-export type MapHex = Hex & {
-  // many such hexes with off-board connections have a list of values
-  // and some labels for when those values apply
-  values: Array<Number>;
-  valueLabels?: Array<String>;
-};
+export type MapHex = Hex & OptionalRevenues;
 
 // A placeable track tile
 // so far there's nothing unique about these
@@ -84,7 +80,7 @@ export type Tile = Hex & {};
 // Layout is specified by each hex in the multi having a list of directions to reach it from the first hex
 // Each hex also has an orientation
 // Example:
-//  [[[],1,A],[[1],1,B],[[1,1],2,C],[[3],4,D]]
+//  [[[],0,A],[[0],0,B],[[0,0],1,C],[[2],3,D]]
 //  A is the origin hex, in default orientation
 //  B is north of A, in default orientation
 //  C is north+north of A, or north of B, rotated 60 degrees clockwise
@@ -93,41 +89,41 @@ export type MultiHex<T> = Array<[Array<HexDirection>, HexDirection, T]>;
 export type MultiMapHex = MultiHex<MapHex>;
 export type MultiTile = MultiHex<Tile>;
 
-// A connection between tile edges can specify just the two edges
-// or it can specify that plus some metadata about the connection
-// the number can also be 0 to indicate the middle of the hex
+// A connection goes from one position to another
+// positions 0-5 are the edges of the tile
+// positions 6+ are implicit junctions
+// cities and towns are numbered -1, -2, ...
 export type TileConnection = [number, number] | [number, number, TileConnectionMetadata];
 
 // type:
-//  standard is the most common track
+//  standard is the most common track, and is implicit
 //  narrow and dual gauge appear in some games as striped white/black/white/black track
 //  ferry routes are red in some games
 //  mountain pass appears in 1841
-// connections can also have towns or cities along them
-//  given in order from the start to the end position of the connection
-export type TileConnectionMetadata = { type?: 'standard' | 'narrow' | 'dual' | 'ferry' | 'pass' } & HasTowns &
-  HasCities;
+export type TileConnectionMetadata = { type?: string };
 
-// A stop can have connections not otherwise specified as a TileConnection above
-// these are for connections that go from a stop to an edge, not edge to edge
-export type TileStopConnection = number | { edge: number; data: TileConnectionMetadata };
+type OptionalRevenues =
+| { revenue?: never; revenues?: never; }
+| { revenue: number; revenueCondition?: string; revenueLabel?: string; revenues?: never; revenueConditions?: never; revenueLabels?: never }
+| { revenue?: never; revenueCondition?: never; revenueLabel?: never; revenues: Array<number>; revenueConditions?: Array<string>; revenueLabels?: Array<string> };
 
-type HasTileStopConnections =
-  | {}
-  | { connection: TileStopConnection; connections: never }
-  | { connection: never; connections: Array<TileStopConnection> };
+/**
+ * A place a train might visit, to earn revenue or otherwise
+ */
+export type TileStop = { name?: string; revenueSeparator?: string } & OptionalRevenues;
 
-type HasValues =
-  | { value: number; valueLabel?: string; values: never; valueLabels: never }
-  | { value: never; valueLabel: never; values: Array<number>; valueLabels?: Array<string> };
+/**
+ * A city is a place with space for token(s)
+ */
+export type TileCity = TileStop & { tokens: number; tokenLabels?: Array<string>; label?: string };
 
-export type TileStop = { name?: string; valueSeparator?: string; position?: number } & HasTileStopConnections &
-  HasValues;
+/**
+ * A town is a place with no space for token(s)
+ * style is for dots vs bars and other visual styles
+ * variation are for gameplay altering things like a "halt"
+ */
+export type TileTown = TileStop & { style?: string; variation?: string; tokens?: never };
 
-// tokenLabels will most often be used for company starting locations
-export type TileCity = TileStop & { label?: string; tokens: number; tokenLabels?: Array<string> };
-
-// variation can be used for a "halt" stop or other types in some games
-export type TileTown = TileStop & { style?: 'dot' | 'bar'; variation?: string };
+export type TileStopType = TileCity | TileTown;
 
 //TODO support arbitrary art, vector or raster, on tiles, such as river on 1842 #316

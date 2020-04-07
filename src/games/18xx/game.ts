@@ -22,8 +22,8 @@ export interface IG {
   priority: types.TPlayerID;
 }
 
-export const EighteenEUGame = {
-  name: '18eu',
+export const EighteenXXGame = {
+  name: '18xx',
 
   setup: (ctx: IGameCtx): IG => ({
     players: Array<types.IPlayer>(ctx.numPlayers),
