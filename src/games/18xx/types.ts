@@ -10,7 +10,7 @@ export type TMinorID = Flavor<number, 'TMinorID'>; // minor company number
 export type TCorporationID = Flavor<string, 'TCorporationID'>; // corporation acronym
 export type TCompanyID = TMinorID | TCorporationID;
 export type TTrainType = Flavor<number | string, 'TTrainType'>; // 2, 3, 4, 5, 6, 8, P
-export type TPlayerID = Flavor<number, 'TPlayerID'>; // player number 0 through n-1
+export type TPlayerID = Flavor<string, 'TPlayerID'>; // player number 0 through n-1, as strings
 export type TPlayerName = Flavor<string, 'TPlayerName'>;
 export type TPlaceID = Flavor<number, 'TPlaceID'>; // disconnected areas on a tile for city tokens
 
@@ -32,7 +32,7 @@ interface IHasTrains {
 
 export interface IPlayer extends IHasCash, IHasMinors, IHasShares {
   id: TPlayerID;
-  name: TPlayerName;
+  // name: TPlayerName;
   presidencies: Set<TCorporationID>;
 }
 

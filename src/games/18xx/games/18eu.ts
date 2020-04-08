@@ -3,7 +3,13 @@
  * Details of Minor Companies, Corporations, Trains, etc
  */
 
-import * as types from './types';
+import * as types from '../types';
+
+export const name = "18EU"
+
+export const currency = "£"
+
+export const startingMoney = {2:750, 3:450, 4:350, 5:300, 6:250}
 
 // Train types
 
@@ -14,7 +20,7 @@ export interface ITrainInfo {
   art?: types.TImage;
 }
 
-let trainInfoArr: [number | string, ITrainInfo][] = [
+const trainInfoArr: [number | string, ITrainInfo][] = [
   [2, { id: 2, cost: 100, name: 'Wien-Raab-Bahn Norris 4-2-0 "Philadelphia" (1838)' }],
   [3, { id: 3, cost: 200, name: 'French C.-F. du Nord Crampton 4-2-0 (1846)' }],
   [4, { id: 4, cost: 300, name: 'Italian S.F.A.I. "Vittorio Emanuele II" 4-6-0 (1884)' }],
@@ -28,7 +34,7 @@ for (let trainInfo of trainInfoArr) {
   trainInfo[1].art = import('./media/cardart/train_' + trainInfo[1].id + '.png');
 }
 
-let TrainInfo: Map<types.TTrainType, ITrainInfo> = new Map(trainInfoArr);
+const TrainInfo: Map<types.TTrainType, ITrainInfo> = new Map(trainInfoArr);
 
 for (let [key, value] of TrainInfo) {
   value.art = import('./media/cardart/train_' + key + '.png');
@@ -47,7 +53,7 @@ export interface ICorporationInfo {
   tokenImage?: types.TImage;
 }
 
-var CorporationInfo: Map<types.TCorporationID, ICorporationInfo> = new Map([
+const CorporationInfo: Map<types.TCorporationID, ICorporationInfo> = new Map([
   [
     'bnrc',
     {
@@ -138,7 +144,7 @@ export interface IMinorInfo {
 }
 
 // prettier-ignore
-export var MinorInfo: Map<types.TMinorID, IMinorInfo> = new Map([
+export const MinorInfo: Map<types.TMinorID, IMinorInfo> = new Map([
   [ 1, { id:  1, name: 'Chemin de Fer du Nord' }],
   [ 2, { id:  2, name: 'État Belge' }],
   [ 3, { id:  3, name: 'Paris-Lyon-Méditerranée' }],
@@ -155,3 +161,10 @@ export var MinorInfo: Map<types.TMinorID, IMinorInfo> = new Map([
   [14, { id: 14, name: 'Ligne Strasbourg-Bâle' }],
   [15, { id: 15, name: 'Grand Central' }],
 ]);
+
+export const tiles = [
+  /*Yellow*/ [3,8],[4,10],[7,4],[8,15],[9,15],[57,8],[58,14],[201,7],[202,9], 
+  /*Green*/ [14,4],[15,4],[80,4],[81,4],[82,4],[83,4],[141,5],[142,4],[143,2],[144,2],[576,4],[577,4],[578,3],[579,3],[580,1],[581,2],
+  /*Brown*/ [145,4],[146,5],[147,4],[544,3],[545,3],[546,3],[582,9],[583,1],[584,2],[611,8],
+  /*Grey*/ [513,5],
+];
