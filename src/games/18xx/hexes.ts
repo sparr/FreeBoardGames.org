@@ -5,7 +5,6 @@
  * Tiles are placed on top of other tiles or MapHexes in the game
  */
 
-import { Flavor } from './nominal';
 import * as types from './types';
 
 // All the place-able tiles known
@@ -18,9 +17,7 @@ export interface MapHexList {
   [key: string]: MapHex | MultiMapHex;
 }
 
-// Flavored types to provide assignment safety
-export type HexID = Flavor<string, 'HexID'>;
-export type PositionID = Flavor<number, 'PositionID'>;
+export type HexID = string;
 
 // 0-5 depend on map orientation
 //  flat tops  are 0-5 N NE SE S SW NW
@@ -42,8 +39,8 @@ export type Hex = {
   gameIDs?: { [key: string]: HexID }; // keys are game names
 
   //TODO: extend TColor to include multi-color / striped tile backgrounds
-  color: types.TColor;
-  border?: types.TColor;
+  color: types.Color;
+  border?: types.Color;
 
   // connections between two edges or locations on the tile
   connections?: Array<TileConnection>;
@@ -63,7 +60,7 @@ export type Hex = {
   icon?: string;
 
   // most often encountered in mountain and river hexes
-  upgradeCost?: types.TMoney;
+  upgradeCost?: types.Money;
 
   // taken from online sources
   typicalUpgrades?: Array<HexID>;

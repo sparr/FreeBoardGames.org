@@ -2,69 +2,67 @@
  * Types, Aliases, Interfaces, etc
  */
 
-import { Flavor } from './nominal';
+export type Money = number; // cash
+export type Quantity = number; // generic count or amount
+export type MinorID = number; // minor company number
+export type CorporationID = string; // corporation acronym
+export type CompanyID = MinorID | CorporationID;
+export type TrainType = number | string; // 2, 3, 4, 5, 6, 8, P
+export type PlayerID = string; // player number 0 through n-1, as strings
+export type PlayerName = string;
+export type Color = string;
 
-export type TMoney = Flavor<number, 'TMoney'>; // cash
-export type TQuantity = Flavor<number, 'TQuantity'>; // generic count or amount
-export type TMinorID = Flavor<number, 'TMinorID'>; // minor company number
-export type TCorporationID = Flavor<string, 'TCorporationID'>; // corporation acronym
-export type TCompanyID = TMinorID | TCorporationID;
-export type TTrainType = Flavor<number | string, 'TTrainType'>; // 2, 3, 4, 5, 6, 8, P
-export type TPlayerID = Flavor<string, 'TPlayerID'>; // player number 0 through n-1, as strings
-export type TPlayerName = Flavor<string, 'TPlayerName'>;
-export type TPlaceID = Flavor<number, 'TPlaceID'>; // disconnected areas on a tile for city tokens
-
-interface IHasCash {
-  cash: TMoney;
+interface HasCash {
+  cash: Money;
 }
 
-interface IHasMinors {
-  minors: Set<TMinorID>;
+interface HasMinors {
+  minors: {[minorid: string]: true};
 }
 
-interface IHasShares {
-  shares: Map<TCorporationID, TQuantity>;
+interface HasShares {
+  shares: {[corpid: string]: Quantity};
 }
 
-interface IHasTrains {
-  trains: Map<TTrainType, TQuantity>;
+interface HasTrains {
+  trains: {[traintype: string]: Quantity};
 }
 
-export interface IPlayer extends IHasCash, IHasMinors, IHasShares {
-  id: TPlayerID;
+export interface Player extends HasCash, HasMinors, HasShares {
+  id: PlayerID;
   // name: TPlayerName;
-  presidencies: Set<TCorporationID>;
+  presidencies: {[corpid: string]: true};
 }
 
-export interface ICompany extends IHasCash, IHasTrains {
-  id: TCompanyID;
+export interface Company extends HasCash, HasTrains {
+  id: CompanyID;
   hasOperated: boolean;
-  tokensLeft: TQuantity;
+  tokensLeft: Quantity;
 }
 
-export interface IMinor extends ICompany {
-  id: TMinorID;
-  owner: TPlayerID;
+export interface Minor extends Company {
+  id: MinorID;
+  owner: PlayerID;
 }
 
-export interface ICorporation extends ICompany, IHasShares {
-  id: TCorporationID;
-  president: TPlayerID;
-  initialPrice: TMoney;
-  currentPrice: TMoney;
-  incomeHistory: Array<TMoney>;
+export interface Corporation extends Company, HasShares {
+  id: CorporationID;
+  president: PlayerID;
+  initialPrice: Money;
+  currentPrice: Money;
+  revenueHistory: Array<Money>;
+  dividendHistory: Array<Money>;
 }
 
-export interface IBank extends IHasCash, IHasTrains, IHasMinors, IHasShares {}
+export interface Bank extends HasCash, HasTrains, HasMinors, HasShares {}
 
-export interface IPool extends IHasTrains, IHasShares {}
+export interface Pool extends HasTrains, HasShares {}
 
-export type TImage = Promise<string>;
+export type Image = Promise<string>;
 
-export interface IMapLocation {
+export interface MapLocation {
   row: string;
   col: number;
-  place?: number; // for tiles with multiple disconnected groups of token slots
+  place?: number; // places on a hex a thing can be, mostly token slots
 }
 
-export type TColor = Flavor<string, 'TColor'>;
