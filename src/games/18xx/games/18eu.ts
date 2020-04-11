@@ -15,23 +15,26 @@ export const startingMoney = { 2: 750, 3: 450, 4: 350, 5: 300, 6: 250 };
 
 export interface ITrainInfo {
   id: types.TrainType;
+  count: types.Quantity;
+  phase: number;
+  rusts?: number;
   cost: types.Money;
   name: string;
   art?: types.Image;
 }
 
 const TrainInfo: { [id: string]: ITrainInfo } = {
-  2: { id: 2, cost: 100, name: 'Wien-Raab-Bahn Norris 4-2-0 "Philadelphia" (1838)' },
-  3: { id: 3, cost: 200, name: 'French C.-F. du Nord Crampton 4-2-0 (1846)' },
-  4: { id: 4, cost: 300, name: 'Italian S.F.A.I. "Vittorio Emanuele II" 4-6-0 (1884)' },
-  5: { id: 5, cost: 500, name: 'Austrian K.K.-Bahn Gölsdorf 2-8-0 (1897)' },
-  6: { id: 6, cost: 600, name: "French C-F de l'Est Compound 4-8-2 (1930)" },
-  8: { id: 8, cost: 800, name: 'Deutsche Reichsbahn Type 50 2-10-0 (1938)' },
-  P: { id: 'P', cost: 100, name: 'Pullman' },
+  2: { id: 2, count: 15, phase: 2, cost: 100, name: 'Wien-Raab-Bahn Norris 4-2-0 "Philadelphia" (1838)' },
+  3: { id: 3, count: 5, phase: 3, cost: 200, name: 'French C.-F. du Nord Crampton 4-2-0 (1846)' },
+  4: { id: 4, count: 4, phase: 4, rusts: 2, cost: 300, name: 'Italian S.F.A.I. "Vittorio Emanuele II" 4-6-0 (1884)' },
+  5: { id: 5, count: 3, phase: 5, cost: 500, name: 'Austrian K.K.-Bahn Gölsdorf 2-8-0 (1897)' },
+  6: { id: 6, count: 2, phase: 6, rusts: 3, cost: 600, name: "French C-F de l'Est Compound 4-8-2 (1930)" },
+  8: { id: 8, count: 99, phase: 8, rusts: 4, cost: 800, name: 'Deutsche Reichsbahn Type 50 2-10-0 (1938)' },
+  P: { id: 'P', count: 5, phase: 3, cost: 100, name: 'Pullman' },
 };
 
 for (let trainID in TrainInfo) {
-  TrainInfo[trainID].art = import('./media/cardart/train_' + trainID + '.png');
+  TrainInfo[trainID].art = import('../media/18eu/cardart/train_' + trainID + '.png');
 }
 
 export { TrainInfo };
@@ -100,8 +103,8 @@ const CorporationInfo: { [key: string]: ICorporationInfo } = {
 };
 
 for (let corpID in CorporationInfo) {
-  CorporationInfo[corpID].art = import('./media/18eu/cardart/corp_' + corpID + '.png');
-  CorporationInfo[corpID].tokenImage = import('./media/18eu/tokens/corp_' + corpID + '.png');
+  CorporationInfo[corpID].art = import('../media/18eu/cardart/corp_' + corpID + '.png');
+  CorporationInfo[corpID].tokenImage = import('../media/18eu/tokens/corp_' + corpID + '.png');
 }
 
 export { CorporationInfo };
@@ -114,22 +117,22 @@ export interface IMinorInfo {
 }
 
 // prettier-ignore
-export const MinorInfo: {[key:string]: IMinorInfo} = {
+export const MinorInfo: {[key:number]: IMinorInfo} = {
    1: { id:  1, name: 'Chemin de Fer du Nord' },
    2: { id:  2, name: 'État Belge' },
    3: { id:  3, name: 'Paris-Lyon-Méditerranée' },
-   4: { id:  4, name: 'Leipzig-Dresdner-Bahn' },
-   5: { id:  5, name: 'Ferrovia Adriatica' },
-   6: { id:  6, name: 'Kaiser-Ferdinand-Nordbahn' },
-   7: { id:  7, name: 'Berlin-Potsdamer-Bahn' },
-   8: { id:  8, name: 'Ungarisch Staatsbahn' },
-   9: { id:  9, name: 'Berlin-Stettiner-Bahn' },
-  10: { id: 10, name: 'Strade Ferrate Alta Italia' },
-  11: { id: 11, name: 'Südbahn' },
-  12: { id: 12, name: 'Hollandsche Maatschappik' },
-  13: { id: 13, name: 'Ludwigsbahn' },
-  14: { id: 14, name: 'Ligne Strasbourg-Bâle' },
-  15: { id: 15, name: 'Grand Central' },
+  //  4: { id:  4, name: 'Leipzig-Dresdner-Bahn' },
+  //  5: { id:  5, name: 'Ferrovia Adriatica' },
+  //  6: { id:  6, name: 'Kaiser-Ferdinand-Nordbahn' },
+  //  7: { id:  7, name: 'Berlin-Potsdamer-Bahn' },
+  //  8: { id:  8, name: 'Ungarisch Staatsbahn' },
+  //  9: { id:  9, name: 'Berlin-Stettiner-Bahn' },
+  // 10: { id: 10, name: 'Strade Ferrate Alta Italia' },
+  // 11: { id: 11, name: 'Südbahn' },
+  // 12: { id: 12, name: 'Hollandsche Maatschappik' },
+  // 13: { id: 13, name: 'Ludwigsbahn' },
+  // 14: { id: 14, name: 'Ligne Strasbourg-Bâle' },
+  // 15: { id: 15, name: 'Grand Central' },
 };
 
 export const tiles = [

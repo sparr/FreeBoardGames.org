@@ -3,7 +3,7 @@ import EighteenXXThumbnail from './media/thumbnail.png';
 import { IGameDef } from 'games';
 import instructions from './instructions.md';
 
-export const EighteenEUGameDef: IGameDef = {
+export const EighteenXXGameDef: IGameDef = {
   code: '18xx',
   name: '18XX',
   minPlayers: 2,

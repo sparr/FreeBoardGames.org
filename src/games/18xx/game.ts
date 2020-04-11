@@ -11,11 +11,11 @@ import * as types from './types';
 import * as hexes from './hexes';
 
 import { IGameCtx } from 'boardgame.io/core';
-import { TurnOrder } from 'boardgame.io/core';
 import { INVALID_MOVE } from 'boardgame.io/core';
 
 var games = {};
-games['18eu'] = import('./games/18eu');
+import * as EighteenEUGame from './games/18eu';
+games['18eu'] = EighteenEUGame;
 
 export interface IG {
   // game state
@@ -23,7 +23,7 @@ export interface IG {
   players: { [playerid: string]: types.Player };
   bank: types.Bank;
   pool: types.Pool;
-  minors: { [minorid: string]: types.Minor };
+  minors: { [minorid: number]: types.Minor };
   corporations: { [corpid: string]: types.Corporation };
   priority: types.PlayerID;
   tilesAvailable: { [hexid: string]: number };
@@ -32,6 +32,7 @@ export interface IG {
   minorAuction?: {
     minor: types.MinorID;
     auctioneer: types.PlayerID;
+    firstBidder?: types.PlayerID;
     minBid: number;
     passed?: { [playerID: string]: true };
     highBidder?: types.PlayerID;
@@ -44,35 +45,42 @@ export const EighteenXXGame = {
 
   setup: (ctx: IGameCtx): IG => ({
     game: '18eu',
-    players: ctx.playOrder.reduce(
-      (players, playerID) =>
-        (players[playerID] = {
+    players: ctx.playOrder.reduce((players, playerID) => {
+      return {
+        ...players,
+        [playerID]: {
           id: playerID,
           presidencies: {},
           cash: games['18eu'].startingMoney[ctx.numPlayers],
           minors: {},
           shares: {},
-        }),
-      {},
-    ),
+        },
+      };
+    }, {}),
     bank: {
       cash: 12000 - games['18eu'].startingMoney[ctx.numPlayers] * ctx.numPlayers,
-      trains: {}, //FIXME: starting train counts
-      minors: games['18eu'].MinorInfo.keys().reduce((a, b) => ((a[b] = true), a), {}),
+      trains: Object.keys(games['18eu'].TrainInfo).reduce((trains, trainID) => {
+        return { ...trains, [trainID]: games['18eu'].TrainInfo[trainID].count };
+      }, {}),
+      minors: Object.keys(games['18eu'].MinorInfo).reduce((a, b) => {
+        return { ...a, [b]: true };
+      }, {}),
       shares: {},
     },
     pool: {
       trains: {},
       shares: {},
     },
-    minors: games['18eu'].MinorInfo.keys().reduce(
-      (minors, minorID) =>
-        (minors[minorID] = { id: minorID, owner: '', hasOperated: false, tokensLeft: 1, cash: 0, trains: {} }),
-      {},
-    ),
-    corporations: games['18eu'].CorporationInfo.keys().reduce(
-      (corporations, corporationID) =>
-        (corporations[corporationID] = {
+    minors: Object.keys(games['18eu'].MinorInfo).reduce((minors, minorID) => {
+      return {
+        ...minors,
+        [minorID]: { id: minorID, owner: '', hasOperated: false, tokensLeft: 1, cash: 0, trains: {} },
+      };
+    }, {}),
+    corporations: Object.keys(games['18eu'].CorporationInfo).reduce((corporations, corporationID) => {
+      return {
+        ...corporations,
+        [corporationID]: {
           id: corporationID,
           president: '',
           initialPrice: -1,
@@ -84,43 +92,83 @@ export const EighteenXXGame = {
           cash: 0,
           trains: {},
           shares: {},
-        }),
-      {},
-    ),
+        },
+      };
+    }, {}),
     priority: '0',
-    tilesAvailable: games['18eu'].tiles.reduce(
-      (tiles, tileCount) => (tiles[tileCount[0].toString()] = tileCount[1]),
-      {},
-    ),
+    tilesAvailable: games['18eu'].tiles.reduce((tiles, tileCount) => {
+      return { ...tiles, [tileCount[0].toString()]: tileCount[1] };
+    }, {}),
     tilesPlaced: {},
     tokensPlaced: {},
   }),
 
   turn: {
     order: {
+      //FIXME: these should be optional and use defaults otherwise!
+      first: () => 0,
+      next: (G: IG, ctx: IGameCtx) => (ctx.playOrderPos + 1) % ctx.numPlayers,
+
       // Randomize initial value of playOrder.
       // This is called at the beginning of the game / phase.
-      playOrder: (G, ctx) => ctx.shuffle(ctx.playOrder),
+      // bg.io bug, ctx.random doesn't exist? https://github.com/nicolodavis/boardgame.io/issues/605
+      // playOrder: (G: IG, ctx: IGameCtx) => ctx.random.Shuffle(ctx.playOrder),
+      playOrder: (G: IG, ctx: IGameCtx) => ctx.playOrder,
     },
   },
 
   phases: {
     // Minor Company Initial Sale Round
     mcisrChooseMinor: {
+      turn: {
+        order: {
+          first: (G: IG, ctx: IGameCtx) => {
+            // if we return to this phase after a previous auction, advance the auctioneer
+            if (G.minorAuction) {
+              return (ctx.playOrder.lastIndexOf(G.minorAuction.auctioneer) + 1) % ctx.numPlayers;
+            }
+            return 0;
+          },
+        },
+      },
       start: true, // game starts here
       moves: { mcisrChooseMinor },
+      onBegin: (G: IG, ctx: IGameCtx) => {
+        console.log('mCMoB');
+        if (Object.keys(G.bank.minors).length == 0) {
+          console.log('done');
+          delete G.minorAuction;
+          ctx.events.setPhase('operatingRound');
+          console.log(G);
+          console.log(ctx);
+        }
+      },
     },
 
     mcisrStartAuction: {
       moves: { mcisrStartAuctionStart, mcisrStartAuctionDecline },
-      turn: { order: TurnOrder.ONCE },
+      turn: {
+        order: {
+          first: (G: IG, ctx: IGameCtx) => {
+            return ctx.playOrder.lastIndexOf(G.minorAuction.auctioneer);
+          },
+          next: (G: IG, ctx: IGameCtx) => {
+            let nextPlayOrderPos = (ctx.playOrderPos + 1) % ctx.numPlayers;
+            if (ctx.playOrder[nextPlayOrderPos] != G.minorAuction.auctioneer) {
+              return nextPlayOrderPos;
+            }
+          },
+        },
+      },
       next: 'mcisrDiscountRound',
     },
 
     mcisrAuction: {
+      next: 'mcisrChooseMinor',
       moves: { mcisrAuctionBid, mcisrAuctionPass },
       turn: {
         order: {
+          first: (G: IG, ctx: IGameCtx) => (ctx.playOrder.lastIndexOf(G.minorAuction.firstBidder) + 1) % ctx.numPlayers,
           // skip players who have passed
           next: (G: IG, ctx: IGameCtx) => {
             // find the first player who hasn’t passed
@@ -137,40 +185,95 @@ export const EighteenXXGame = {
     },
 
     mcisrDiscountRound: {
-      // moves: { mcisrDiscountBuy, mcisrDiscountPass },
+      next: 'mcisrChooseMinor',
+      moves: { mcisrDiscountBuy, mcisrDiscountPass },
+      turn: {
+        onBegin: (G: IG, ctx: IGameCtx) => {
+          if (ctx.playOrder[ctx.playOrderPos] === G.minorAuction.auctioneer) {
+            G.minorAuction.minBid -= 10;
+          }
+          if (G.minorAuction.minBid === 0) {
+            if (playerBuyMinor(G, ctx, G.minorAuction.auctioneer, G.minorAuction.minor, 0) === INVALID_MOVE)
+              return INVALID_MOVE;
+            ctx.events.endPhase();
+          }
+          return G;
+        },
+      },
+    },
+
+    operatingRound: {
+      moves: {},
     },
   },
 };
 
 function mcisrChooseMinor(G: IG, ctx: IGameCtx, choice: types.MinorID) {
-  if (G.minors[choice].owner != '' || !(choice in Object.keys(G.minors))) return INVALID_MOVE;
-  G.minorAuction = { minor: choice, auctioneer: ctx.currentPlayer, minBid: 100 };
+  if (!choice || G.minors[choice].owner != '' || !Object.keys(G.bank.minors).includes(choice.toString()))
+    return INVALID_MOVE;
+  G.minorAuction = { minor: choice, auctioneer: ctx.currentPlayer, minBid: 20 };
   ctx.events.setPhase('mcisrStartAuction');
+  return G;
 }
 
 function mcisrStartAuctionStart(G: IG, ctx: IGameCtx, bid: types.Money) {
-  if (bid < 100 || bid % 5 != 0) return INVALID_MOVE;
+  if (!bid || bid < 100 || bid % 5 != 0) return INVALID_MOVE;
   G.minorAuction.passed = {};
+  G.minorAuction.firstBidder = ctx.currentPlayer;
   G.minorAuction.highBidder = ctx.currentPlayer;
   G.minorAuction.highBid = bid;
   ctx.events.setPhase('mcisrAuction');
+  return G;
 }
 
-function mcisrStartAuctionDecline() {}
+function mcisrStartAuctionDecline(G: IG, ctx: IGameCtx) {
+  ctx.events.endTurn();
+  return G;
+}
 
 function mcisrAuctionBid(G: IG, ctx: IGameCtx, bid: types.Money) {
-  if (bid < G.minorAuction.highBid + 5 || bid % 5 != 0) return INVALID_MOVE;
+  if (!bid || bid < G.minorAuction.highBid + 5 || bid % 5 != 0 || bid > G.players[ctx.currentPlayer].cash)
+    return INVALID_MOVE;
   G.minorAuction.highBidder = ctx.currentPlayer;
   G.minorAuction.highBid = bid;
+  ctx.events.endTurn();
+  return G;
 }
 
 function mcisrAuctionPass(G: IG, ctx: IGameCtx) {
   G.minorAuction.passed[ctx.currentPlayer] = true;
+  ctx.events.endTurn();
   if (Object.keys(G.minorAuction.passed).length == ctx.numPlayers - 1) {
-    G.minors[G.minorAuction.minor].owner = G.minorAuction.highBidder;
-    G.players[G.minorAuction.highBidder].minors[G.minorAuction.minor] = true;
-    G.minors[G.minorAuction.minor].trains[2] = 1;
-    G.bank.trains[2] -= 1;
+    if (
+      playerBuyMinor(G, ctx, G.minorAuction.highBidder, G.minorAuction.minor, G.minorAuction.highBid) === INVALID_MOVE
+    )
+      return INVALID_MOVE;
     ctx.events.endPhase();
   }
+  return G;
+}
+
+function playerBuyMinor(G: IG, ctx: IGameCtx, player: types.PlayerID, minor: types.MinorID, cost: types.Money) {
+  if (G.players[player].cash < cost) return INVALID_MOVE;
+  if (G.minors[minor].owner != '') return INVALID_MOVE;
+  if (G.bank.trains[2] < 1) return INVALID_MOVE;
+  G.minors[minor].owner = player;
+  G.players[player].minors[minor] = true;
+  delete G.bank.minors[minor];
+  G.minors[minor].trains[2] = 1;
+  G.bank.trains[2] -= 1;
+  G.players[player].cash -= cost;
+  G.bank.cash += cost;
+}
+
+function mcisrDiscountBuy(G: IG, ctx: IGameCtx) {
+  if (playerBuyMinor(G, ctx, ctx.currentPlayer, G.minorAuction.minor, G.minorAuction.minBid) === INVALID_MOVE)
+    return INVALID_MOVE;
+  ctx.events.endPhase();
+  return G;
+}
+
+function mcisrDiscountPass(G: IG, ctx: IGameCtx) {
+  ctx.events.endTurn();
+  return G;
 }
