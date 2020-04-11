@@ -133,16 +133,8 @@ export const EighteenXXGame = {
       },
       start: true, // game starts here
       moves: { mcisrChooseMinor },
-      onBegin: (G: IG, ctx: IGameCtx) => {
-        console.log('mCMoB');
-        if (Object.keys(G.bank.minors).length == 0) {
-          console.log('done');
-          delete G.minorAuction;
-          ctx.events.setPhase('operatingRound');
-          console.log(G);
-          console.log(ctx);
-        }
-      },
+      endIf: (G: IG) => Object.keys(G.bank.minors).length == 0,
+      next: 'operatingRound',
     },
 
     mcisrStartAuction: {
@@ -204,6 +196,9 @@ export const EighteenXXGame = {
 
     operatingRound: {
       moves: {},
+      onBegin: (G: IG) => {
+        delete G.minorAuction;
+      },
     },
   },
 };
