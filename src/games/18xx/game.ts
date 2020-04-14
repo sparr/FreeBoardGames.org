@@ -20,6 +20,7 @@ games['18eu'] = EighteenEUGame;
 export interface IG {
   // game state
   game: '18eu';
+  gamePhase: number;
   players: { [playerid: string]: types.Player };
   bank: types.Bank;
   pool: types.Pool;
@@ -38,6 +39,8 @@ export interface IG {
     highBidder?: types.PlayerID;
     highBid?: types.Money;
   };
+  operatingOrder?: Array<types.CompanyID>;
+  operatingOrderPos?: number;
 }
 
 export const EighteenXXGame = {
@@ -45,6 +48,7 @@ export const EighteenXXGame = {
 
   setup: (ctx: IGameCtx): IG => ({
     game: '18eu',
+    gamePhase: 1,
     players: ctx.playOrder.reduce((players, playerID) => {
       return {
         ...players,
@@ -198,8 +202,26 @@ export const EighteenXXGame = {
       moves: {},
       onBegin: (G: IG) => {
         delete G.minorAuction;
+        if (G.gamePhase == 1) G.gamePhase = 2;
+        let minorOperatingOrder = Object.keys(G.minors).filter(minorID => !G.bank.minors[minorID]);
+        let corporationOperatingOrder =
+          Object.keys(G.corporations)
+          .filter(corporationID => G.corporations[corporationID].president != '')
+          .sort((corpID1, corpID2) => {return 1});
+        return G;
       },
-    },
+      turn: {
+        order: {
+          first: () => 0,
+          next: (G: IG, ctx: IGameCtx) => (ctx.playOrderPos + 1) % ctx.numPlayers,
+    
+          // Randomize initial value of playOrder.
+          // This is called at the beginning of the game / phase.
+          // bg.io bug, ctx.random doesn't exist? https://github.com/nicolodavis/boardgame.io/issues/605
+          // playOrder: (G: IG, ctx: IGameCtx) => ctx.random.Shuffle(ctx.playOrder),
+          playOrder: (G: IG, ctx: IGameCtx) => ctx.playOrder,
+        },
+        },
   },
 };
 

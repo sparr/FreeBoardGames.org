@@ -177,3 +177,46 @@ export const tiles = [
   /*Grey*/
   [513, 5],
 ];
+
+var stockChart: Array<Array<types.Money>> = [
+  [82, 90, 100, 110, 122, 135, 150, 165, 180, 200, 220, 245, 270, 300, 330, 360, 400],
+  [75, 82, 90, 100, 110, 122, 135, 150, 165, 180, 200, 220, 245, 270],
+  [70, 75, 82, 90, 100, 110, 122, 135, 150, 165, 180],
+  [65, 70, 75, 82, 90, 100, 110, 122],
+  [60, 65, 70, 75, 82, 90],
+  [50, 60, 65, 70, 75],
+  [40, 50, 60, 65],
+];
+
+export interface StockMarketSpace {
+  row: number;
+  col: number;
+  value: types.Money;
+  starting?: true;
+}
+
+const StockMarket: { [row: number]: { [col: number]: StockMarketSpace } } = {};
+stockChart.forEach((rowContents, rowNum) => {
+  StockMarket[rowNum] = {};
+  rowContents.forEach((value, colNum) => {
+    StockMarket[rowNum][colNum] = {
+      row: rowNum,
+      col: colNum,
+      value: value,
+    };
+  });
+});
+const StockMarketStartingSpaces = {};
+let startingSpaces = [
+  [2, 4],
+  [3, 3],
+  [3, 4],
+  [4, 2],
+  [4, 3],
+];
+startingSpaces.map((space) => {
+  StockMarket[space[0]][space[1]].starting = true;
+  StockMarketStartingSpaces[StockMarket[space[0]][space[1]].value] = StockMarket[space[0]][space[1]];
+});
+
+export { StockMarket, StockMarketStartingSpaces };
