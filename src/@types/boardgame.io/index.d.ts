@@ -45,6 +45,7 @@ declare module 'boardgame.io/core' {
     setStage: (stage: string) => void;
     endStage: () => void;
     setActivePlayers: (activePlayers: IActivePlayers) => void;
+    setPhase: (phase: string) => void;
   }
   interface INextPlayer {
     next: string;

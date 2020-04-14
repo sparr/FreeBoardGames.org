@@ -221,7 +221,8 @@ export const EighteenXXGame = {
           // playOrder: (G: IG, ctx: IGameCtx) => ctx.random.Shuffle(ctx.playOrder),
           playOrder: (G: IG, ctx: IGameCtx) => ctx.playOrder,
         },
-        },
+      },
+    },
   },
 };
 
