@@ -13,9 +13,7 @@ import * as hexes from './hexes';
 import { IGameCtx } from 'boardgame.io/core';
 import { INVALID_MOVE } from 'boardgame.io/core';
 
-var games = {};
 import * as EighteenEUGame from './games/18eu';
-games['18eu'] = EighteenEUGame;
 
 export interface IG {
   // game state
@@ -39,7 +37,8 @@ export interface IG {
     highBidder?: types.PlayerID;
     highBid?: types.Money;
   };
-  operatingOrder?: Array<types.CompanyID>;
+  stockMarketState: types.StockMarketState;
+  operatingOrder?: types.CompanyID[];
   operatingOrderPos?: number;
 }
 
@@ -55,18 +54,18 @@ export const EighteenXXGame = {
         [playerID]: {
           id: playerID,
           presidencies: {},
-          cash: games['18eu'].startingMoney[ctx.numPlayers],
+          cash: EighteenEUGame.startingMoney[ctx.numPlayers],
           minors: {},
           shares: {},
         },
       };
     }, {}),
     bank: {
-      cash: 12000 - games['18eu'].startingMoney[ctx.numPlayers] * ctx.numPlayers,
-      trains: Object.keys(games['18eu'].TrainInfo).reduce((trains, trainID) => {
-        return { ...trains, [trainID]: games['18eu'].TrainInfo[trainID].count };
+      cash: 12000 - EighteenEUGame.startingMoney[ctx.numPlayers] * ctx.numPlayers,
+      trains: Object.keys(EighteenEUGame.TrainInfo).reduce((trains, trainID) => {
+        return { ...trains, [trainID]: EighteenEUGame.TrainInfo[trainID].count };
       }, {}),
-      minors: Object.keys(games['18eu'].MinorInfo).reduce((a, b) => {
+      minors: Object.keys(EighteenEUGame.MinorInfo).reduce((a, b) => {
         return { ...a, [b]: true };
       }, {}),
       shares: {},
@@ -75,13 +74,13 @@ export const EighteenXXGame = {
       trains: {},
       shares: {},
     },
-    minors: Object.keys(games['18eu'].MinorInfo).reduce((minors, minorID) => {
+    minors: Object.keys(EighteenEUGame.MinorInfo).reduce((minors, minorID) => {
       return {
         ...minors,
         [minorID]: { id: minorID, owner: '', hasOperated: false, tokensLeft: 1, cash: 0, trains: {} },
       };
     }, {}),
-    corporations: Object.keys(games['18eu'].CorporationInfo).reduce((corporations, corporationID) => {
+    corporations: Object.keys(EighteenEUGame.CorporationInfo).reduce((corporations, corporationID) => {
       return {
         ...corporations,
         [corporationID]: {
@@ -100,11 +99,12 @@ export const EighteenXXGame = {
       };
     }, {}),
     priority: '0',
-    tilesAvailable: games['18eu'].tiles.reduce((tiles, tileCount) => {
+    tilesAvailable: EighteenEUGame.tiles.reduce((tiles, tileCount) => {
       return { ...tiles, [tileCount[0].toString()]: tileCount[1] };
     }, {}),
     tilesPlaced: {},
     tokensPlaced: {},
+    stockMarketState: {},
   }),
 
   turn: {
@@ -207,19 +207,44 @@ export const EighteenXXGame = {
         let corporationOperatingOrder =
           Object.keys(G.corporations)
           .filter(corporationID => G.corporations[corporationID].president != '')
-          .sort((corpID1, corpID2) => {return 1});
+          .filter(corporationID => {
+            let stockPos = G.corporations[corporationID].currentStockMarketPosition;
+            let stockState = G.stockMarketState[stockPos.row][stockPos.col];
+            let tokenState = stockState.tokens.find(token => token.corpID == corporationID).flipped;
+            return tokenState != true;
+          })
+          .sort((corpID1, corpID2) => {
+            let stockPos1 = G.corporations[corpID1].currentStockMarketPosition;
+            let stockPos2 = G.corporations[corpID2].currentStockMarketPosition;
+            let stockData1 = EighteenEUGame.StockMarket[stockPos1.row][stockPos1.col];
+            let stockData2 = EighteenEUGame.StockMarket[stockPos2.row][stockPos2.col];
+            if (stockData1.value != stockData2.value) {
+              return stockData2.value - stockData1.value;
+            }
+            if (stockPos1.col != stockPos2.col) {
+              return stockPos2.col - stockPos1.col;
+            }
+            if (stockPos1.row != stockPos2.row) {
+              return stockPos2.row - stockPos1.row;
+            }
+            let stockState = G.stockMarketState[stockPos1.row][stockPos1.col];
+            let tokenIndex1 = stockState.tokens.findIndex(token => token.corpID == corpID1);
+            let tokenIndex2 = stockState.tokens.findIndex(token => token.corpID == corpID2);
+            return tokenIndex2 - tokenIndex1;
+          });
+        G.operatingOrder = minorOperatingOrder.concat(corporationOperatingOrder);
+        G.operatingOrderPos = 0;
         return G;
       },
       turn: {
         order: {
-          first: () => 0,
-          next: (G: IG, ctx: IGameCtx) => (ctx.playOrderPos + 1) % ctx.numPlayers,
-    
-          // Randomize initial value of playOrder.
-          // This is called at the beginning of the game / phase.
-          // bg.io bug, ctx.random doesn't exist? https://github.com/nicolodavis/boardgame.io/issues/605
-          // playOrder: (G: IG, ctx: IGameCtx) => ctx.random.Shuffle(ctx.playOrder),
-          playOrder: (G: IG, ctx: IGameCtx) => ctx.playOrder,
+          first: (G: IG, ctx: IGameCtx) => ctx.playOrder.lastIndexOf(G.corporations[G.operatingOrder[G.operatingOrderPos]].president),
+          next: (G: IG, ctx: IGameCtx) => {
+            G.operatingOrderPos += 1;
+            if (G.operatingOrderPos < G.operatingOrder.length) {
+              return ctx.playOrder.lastIndexOf(G.corporations[G.operatingOrder[G.operatingOrderPos]].president);
+            }  
+          },
         },
       },
     },

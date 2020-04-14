@@ -188,25 +188,14 @@ var stockChart: Array<Array<types.Money>> = [
   [40, 50, 60, 65],
 ];
 
-export interface StockMarketSpace {
-  row: number;
-  col: number;
-  value: types.Money;
-  starting?: true;
-}
-
-const StockMarket: { [row: number]: { [col: number]: StockMarketSpace } } = {};
+const StockMarket: types.StockMarketData = {};
 stockChart.forEach((rowContents, rowNum) => {
   StockMarket[rowNum] = {};
   rowContents.forEach((value, colNum) => {
-    StockMarket[rowNum][colNum] = {
-      row: rowNum,
-      col: colNum,
-      value: value,
-    };
+    StockMarket[rowNum][colNum] = { value: value };
   });
 });
-const StockMarketStartingSpaces = {};
+const StockMarketStartingSpaces: { [value: number]: types.StockMarketPosition } = {};
 let startingSpaces = [
   [2, 4],
   [3, 3],
@@ -216,7 +205,10 @@ let startingSpaces = [
 ];
 startingSpaces.map((space) => {
   StockMarket[space[0]][space[1]].starting = true;
-  StockMarketStartingSpaces[StockMarket[space[0]][space[1]].value] = StockMarket[space[0]][space[1]];
+  StockMarketStartingSpaces[StockMarket[space[0]][space[1]].value] = {
+    row: space[0],
+    col: space[1],
+  };
 });
 
 export { StockMarket, StockMarketStartingSpaces };

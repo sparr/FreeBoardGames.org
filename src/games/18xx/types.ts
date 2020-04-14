@@ -17,21 +17,21 @@ interface HasCash {
 }
 
 interface HasMinors {
-  minors: {[minorid: string]: true};
+  minors: { [minorid: string]: true };
 }
 
 interface HasShares {
-  shares: {[corpid: string]: Quantity};
+  shares: { [corpid: string]: Quantity };
 }
 
 interface HasTrains {
-  trains: {[traintype: string]: Quantity};
+  trains: { [traintype: string]: Quantity };
 }
 
 export interface Player extends HasCash, HasMinors, HasShares {
   id: PlayerID;
   // name: TPlayerName;
-  presidencies: {[corpid: string]: true};
+  presidencies: { [corpid: string]: true };
 }
 
 export interface Company extends HasCash, HasTrains {
@@ -45,11 +45,35 @@ export interface Minor extends Company {
   owner: PlayerID;
 }
 
+export interface StockMarketShape<T> {
+  [row: number]: {
+    [col: number]: T;
+  };
+}
+
+export interface StockMarketSpaceData {
+  value: Money;
+  starting?: true;
+}
+
+export type StockMarketData = StockMarketShape<StockMarketSpaceData>;
+
+export interface StockMarketSpaceState {
+  tokens?: [{ corpID: CorporationID; flipped: boolean }];
+}
+
+export type StockMarketState = StockMarketShape<StockMarketSpaceState>;
+
+export interface StockMarketPosition {
+  row: number;
+  col: number;
+}
+
 export interface Corporation extends Company, HasShares {
   id: CorporationID;
   president: PlayerID;
   initialPrice: Money;
-  currentPrice: Money;
+  currentStockMarketPosition: StockMarketPosition;
   revenueHistory: Array<Money>;
   dividendHistory: Array<Money>;
 }
@@ -65,4 +89,3 @@ export interface MapLocation {
   col: number;
   place?: number; // places on a hex a thing can be, mostly token slots
 }
-
