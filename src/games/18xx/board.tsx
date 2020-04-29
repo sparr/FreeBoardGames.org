@@ -8,6 +8,7 @@
 
 import * as React from 'react';
 import { IGameArgs } from 'components/App/Game/GameBoardWrapper';
+import { map } from './games/18eu'
 
 interface IBoardProps {
   G: any;
@@ -22,8 +23,10 @@ interface IBoardProps {
 export class Board extends React.Component<IBoardProps, {}> {
 
   render() {
-    return <span><h1>G=</h1><pre>{JSON.stringify(this.props.G, null, 2)};</pre><h1>ctx=</h1><pre>{JSON.stringify(this.props.ctx, null, 2)};</pre></span>;
+    let debug_out = <span><h1>G=</h1><pre>{JSON.stringify(this.props.G, null, 2)};</pre><h1>ctx=</h1><pre>{JSON.stringify(this.props.ctx, null, 2)};</pre></span>;
+    return debug_out;
   };
+
 
 }
 

@@ -1,126 +1,68 @@
-/**
- * A Hex is a basic map element in 18XX games
- * A MapHex represents a hex pre-printed on a game map
- * A Tile representes a placeable tile with track and/or other elements
- * Tiles are placed on top of other tiles or MapHexes in the game
- */
+import * as hexTypes from './HexTypes';
 
-import * as types from './types';
+// prettier-ignore
+export var tileList: hexTypes.TileList = {
+  // 18EU tiles
+  "3": {color: "yellow", stop: {revenue: 10}, connections: [[3,-1],[4,-1]]},
+  "4": {color: "yellow", stop: {revenue: 10}, connections: [[0,-1],[3,-1]]},
+  "7": {color: "yellow", connections: [[2,4]]},
+  "8": {color: "yellow", connections: [[1,4]]},
+  "9": {color: "yellow", connections: [[0,4]]},
+  "14": {color: "green", stop: {tokens: 2, revenue: 30}, connections: [[0,-1],[2,-1],[3,-1],[5,-1]]},
+  "15": {color: "green", stop: {tokens: 2, revenue: 30}, connections: [[0,-1],[3,-1],[4,-1],[5,-1]]},
+  "57": {color: "yellow", stop: {tokens: 1, revenue: 20}, connections: [[0,-1],[-1,3]]},
+  "58": {color: "yellow", stop: {revenue: 10}, connections: [[1,-1],[-1,3]]},
+  "80": {color: "green", connections: [[2,6],[3,6],[4,6]]},
+  "81": {color: "green", connections: [[0,6],[2,6],[4,6]]},
+  "82": {color: "green", connections: [[1,6],[2,6],[4,6]]},
+  "83": {color: "green", connections: [[1,6],[3,6],[4,6]]},
+  "141": {color: "green", stop: {revenue: 10}, connections: [[0,-1],[1,-1],[3,-1]]},
+  "142": {color: "green", stop: {revenue: 10}, connections: [[0,-1],[3,-1],[5,-1]]},
+  "143": {color: "green", stop: {revenue: 10}, connections: [[0,-1],[1,-1],[5,-1]]},
+  "144": {color: "green", stop: {revenue: 10}, connections: [[1,-1],[3,-1],[5,-1]]},
+  "145": {color: "brown", stop: {revenue: 20}, connections: [[0,-1],[1,-1],[3,-1],[4,-1]]},
+  "146": {color: "brown", stop: {revenue: 20}, connections: [[0,-1],[1,-1],[2,-1],[3,-1]]},
+  "147": {color: "brown", stop: {revenue: 20}, connections: [[0,-1],[1,-1],[3,-1],[5,-1]]},
+  "201": {color: "yellow", letters: "Y", stop: {tokens: 1, revenue: 30}, connections: [[2,-1],[3,-1]]},
+  "202": {color: "yellow", letters: "Y", stop: {tokens: 1, revenue: 30}, connections: [[1,-1],[3,-1]]},
+  "513": {color: "grey", stop: {tokens: 3, revenue: 60}, connections: [[0,-1],[1,-1],[2,-1],[3,-1],[4,-1],[5,-1]]},
+  "544": {color: "brown", connections: [[0,6],[1,6],[3,6],[4,6]]},
+  "545": {color: "brown", connections: [[0,6],[3,6],[4,6],[5,6]]},
+  "546": {color: "brown", connections: [[0,6],[1,6],[3,6],[5,6]]},
+  "576": {color: "green", letters: "Y", stop: {tokens: 1, revenue: 40}, connections: [[0,-1],[1,-1],[3,-1]]},
+  "577": {color: "green", letters: "Y", stop: {tokens: 1, revenue: 40}, connections: [[0,-1],[3,-1],[5,-1]]},
+  "578": {color: "green", letters: "Y", stop: {tokens: 1, revenue: 40}, connections: [[3,-1],[4,-1],[5,-1]]},
+  "579": {color: "green", letters: "Y", stop: {tokens: 1, revenue: 40}, connections: [[1,-1],[3,-1],[5,-1]]},
+  "580": {color: "green", letters: "P", stops: [{tokens: 1, revenue: 60}, {tokens: 1, revenue: 60}], connections: [[0,-1],[1,-1],[2,-2],[3,-2]]},
+  "581": {color: "green", letters: "B-V", stops: [{tokens: 1, revenue: 50}, {tokens: 1, revenue: 50}, {tokens: 1, revenue: 50}], connections: [[0,-1],[1,-2],[2,-2],[3,-3],[4,-3],[5,-1]]},
+  "582": {color: "brown", letters: "Y", stop: {tokens: 2, revenue: 50}, connections: [[0,-1],[1,-1],[3,-1],[5,-1]]},
+  "583": {color: "brown", letters: "P", stops: [{tokens: 2, revenue: 80}, {tokens: 2, revenue: 80}], connections: [[0,-1],[1,-1],[2,-2],[3,-2]]},
+  "584": {color: "brown", letters: "B-V", stop: {tokens: 3, revenue: 60}, connections: [[0,-1],[1,-1],[2,-1],[3,-1],[4,-1],[5,-1]]},
+  "611": {color: "brown", stop: {tokens: 2, revenue: 40}, connections: [[0,-1],[1,-1],[3,-1],[4,-1],[5,-1]]},
 
-// All the place-able tiles known
-export interface TileList {
-  [key: string]: Tile | MultiTile;
+  // non-18EU tiles
+  "1": {color: "yellow", stops: [{revenue: 10},{revenue: 10}], connections: [[0,-1],[4,-1],[1,-2],[3,-2]]},
+  "2": {color: "yellow", stops: [{revenue: 10},{revenue: 10}], connections: [[0,-1],[3,-1],[1,-2],[2,-2]]},
+  "5": {color: "yellow", stop: {tokens: 1, revenue: 20}, connections: [[2,-1],[3,-1]]},
+  "6": {color: "yellow", stop: {tokens: 1, revenue: 20}, connections: [[1,-1],[3,-1]]},
+  "10": {color: "green", stops: [{tokens: 1, revenue: 30},{tokens: 1, revenue: 30}], connections: [[0,-1],[3,-2]]},
+  "11": {color: "green", stop: {revenue: 10, variation: "halt"}, connections: [[1,-1],[5,-1],[5,3],[3,1]]},
+  "12": {color: "green", stop: {tokens: 1, revenue: 30}, connections: [[2,-1],[3,-1],[4,-1]]},
+  "13": {color: "green", stop: {tokens: 1, revenue: 30}, connections: [[1,-1],[3,-1],[5,-1]]},
+  "16": {color: "green", connections: [[1,3],[2,4]]},
+  "17": {color: "green", connections: [[0,4],[1,3]]},
+  "18": {color: "green", connections: [[0,3],[4,5]]},
+  "19": {color: "green", connections: [[0,3],[2,4]]},
+  "20": {color: "green", connections: [[0,3],[1,4]]},
+
+  // 18MEX
+  // Mexico City double-tile
+  "485": [
+    [[],0,{color: "brown", stops: [{revenue: 10, name: "Toluca"}, {tokens:3, revenue: 60, name: "Mexico City", tokenLabels: ["NdM"]}], connections: [[0,-1],[1,-2],[3,-2],[4,-2],[5,-2],[-1,-2]]}],
+    [[3],0,{color: "brown", stop: {revenue: 10, name: "Puebla"}, connections: [[0,2],[0,-1],[3,-1]]}],
+  ],
+  "486": [
+    [[],0,{color: "brown", stops: [{revenue: 10, name: "Toluca"}, {tokens:4, revenue: 50, name: "Mexico City", tokenLabels: ["NdM"]}], connections: [[0,-1],[1,-2],[3,-2],[4,-2],[5,-2],[-1,-2]]}],
+    [[3],0,{color: "brown", stop: {revenue: 10, name: "Puebla"}, connections: [[0,2],[0,-1],[3,-1]]}],
+  ],
 }
-
-// All the pre-printed map hexes known
-export interface MapHexList {
-  [key: string]: MapHex | MultiMapHex;
-}
-
-export type HexID = string;
-
-// 0-5 depend on map orientation
-//  flat tops  are 0-5 N NE SE S SW NW
-//  flat sides are 0-5 NE E SE SW W NW
-export type HexDirection = 0 | 1 | 2 | 3 | 4 | 5;
-
-// places a train might stop, cities and towns
-type OptionalStops =
-  | { stop?: never; stops?: never }
-  | { stop: TileStopType; stops?: never }
-  | { stop?: never; stops: Array<TileStopType> };
-
-// The base Hex type are common features found on map hexes and track tiles
-export type Hex = {
-  // A tile might be known by different IDs in different databases
-  id?: HexID;
-  fwtwrID?: HexID; // http://www.fwtwr.com/18xx/tiles/index.asp
-  bwsID?: HexID; // http://www.diogenes.sacramento.ca.us/18xx_net/tiles/index.htm
-  gameIDs?: { [key: string]: HexID }; // keys are game names
-
-  //TODO: extend TColor to include multi-color / striped tile backgrounds
-  color: types.Color;
-  border?: types.Color;
-
-  // connections between two edges or locations on the tile
-  connections?: Array<TileConnection>;
-
-  // edge connections for this offboard location
-  offboardConnections?: Array<number>;
-
-  // named tiles include cities and other prominent locations
-  // a named tile usually only goes one specific place on a map
-  name?: string;
-
-  // one or two letter combinations that identify where a tile fits
-  // unlike a name, many boards have multiple hexes and tiles with the same letters
-  letters?: string;
-
-  // mountain, river, desert, other common features a hex might have
-  icon?: string;
-
-  // most often encountered in mountain and river hexes
-  upgradeCost?: types.Money;
-
-  // taken from online sources
-  typicalUpgrades?: Array<HexID>;
-} & OptionalStops;
-
-// A pre-printed hex on the board
-export type MapHex = Hex & OptionalRevenues;
-
-// A placeable track tile
-// so far there's nothing unique about these
-export type Tile = Hex & {};
-
-// Mexico City is one tile that is two hexes large
-// Layout is specified by each hex in the multi having a list of directions to reach it from the first hex
-// Each hex also has an orientation
-// Example:
-//  [[[],0,A],[[0],0,B],[[0,0],1,C],[[2],3,D]]
-//  A is the origin hex, in default orientation
-//  B is north of A, in default orientation
-//  C is north+north of A, or north of B, rotated 60 degrees clockwise
-//  D is southeast of A, rotated 180 degrees
-export type MultiHex<T> = Array<[Array<HexDirection>, HexDirection, T]>;
-export type MultiMapHex = MultiHex<MapHex>;
-export type MultiTile = MultiHex<Tile>;
-
-// A connection goes from one position to another
-// positions 0-5 are the edges of the tile
-// positions 6+ are implicit junctions
-// cities and towns are numbered -1, -2, ...
-export type TileConnection = [number, number] | [number, number, TileConnectionMetadata];
-
-// type:
-//  standard is the most common track, and is implicit
-//  narrow and dual gauge appear in some games as striped white/black/white/black track
-//  ferry routes are red in some games
-//  mountain pass appears in 1841
-export type TileConnectionMetadata = { type?: string };
-
-type OptionalRevenues =
-| { revenue?: never; revenues?: never; }
-| { revenue: number; revenueCondition?: string; revenueLabel?: string; revenues?: never; revenueConditions?: never; revenueLabels?: never }
-| { revenue?: never; revenueCondition?: never; revenueLabel?: never; revenues: Array<number>; revenueConditions?: Array<string>; revenueLabels?: Array<string> };
-
-/**
- * A place a train might visit, to earn revenue or otherwise
- */
-export type TileStop = { name?: string; revenueSeparator?: string } & OptionalRevenues;
-
-/**
- * A city is a place with space for token(s)
- */
-export type TileCity = TileStop & { tokens: number; tokenLabels?: Array<string>; label?: string };
-
-/**
- * A town is a place with no space for token(s)
- * style is for dots vs bars and other visual styles
- * variation are for gameplay altering things like a "halt"
- */
-export type TileTown = TileStop & { style?: string; variation?: string; tokens?: never };
-
-export type TileStopType = TileCity | TileTown;
-
-//TODO support arbitrary art, vector or raster, on tiles, such as river on 1842 #316

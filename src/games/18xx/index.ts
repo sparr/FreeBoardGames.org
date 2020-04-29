@@ -1,5 +1,5 @@
 import { GameMode } from 'components/App/Game/GameModePicker';
-import EighteenXXThumbnail from './media/thumbnail.png';
+const EighteenXXThumbnail = require('./media/thumbnail.png?lqip-colors');
 import { IGameDef } from 'games';
 import instructions from './instructions.md';
 

@@ -45,10 +45,38 @@ export interface Minor extends Company {
   owner: PlayerID;
 }
 
-export interface StockMarketShape<T> {
-  [row: number]: {
-    [col: number]: T;
-  };
+export type GridShape<T> = T[][];
+
+export function gridGet<T>(grid: GridShape<T>, row: number, col: number, def: T) {
+  if (row in grid && col in grid[row]) {
+    return grid[row][col];
+  } else {
+    return def;
+  }
+}
+
+export function gridSet<T>(grid: GridShape<T>, row: number, col: number, val: T) {
+  if (!(row in grid)) {
+    grid[row] = [];
+  }
+  grid[row][col] = val;
+  return val;
+}
+
+export function gridDel<T>(grid: GridShape<T>, row: number, col: number) {
+  if (row in grid && col in grid[row]) {
+    delete grid[row][col];
+    let empty = true;
+    for (let index = 0; index < grid[row].length; index++) {
+      if (index in grid[row]) {
+        empty = false;
+        break;
+      }
+    }
+    if (empty) {
+      delete grid[row]
+    }
+  }
 }
 
 export interface StockMarketSpaceData {
@@ -56,23 +84,31 @@ export interface StockMarketSpaceData {
   starting?: true;
 }
 
-export type StockMarketData = StockMarketShape<StockMarketSpaceData>;
+export type StockMarketData = GridShape<StockMarketSpaceData>;
 
 export interface StockMarketSpaceState {
   tokens?: [{ corpID: CorporationID; flipped: boolean }];
 }
 
-export type StockMarketState = StockMarketShape<StockMarketSpaceState>;
+export type StockMarketState = GridShape<StockMarketSpaceState>;
 
-export interface StockMarketPosition {
+export interface GridPosition {
   row: number;
   col: number;
+  stack?: number;
+}
+
+export type StockMarketPosition = GridPosition;
+
+export function stockValue(market: StockMarketData, pos: StockMarketPosition) {
+  return market?.[pos.row]?.[pos.col].value;
 }
 
 export interface Corporation extends Company, HasShares {
   id: CorporationID;
   president: PlayerID;
   initialPrice: Money;
+  hasFloated: boolean;
   currentStockMarketPosition: StockMarketPosition;
   revenueHistory: Array<Money>;
   dividendHistory: Array<Money>;
@@ -84,7 +120,7 @@ export interface Pool extends HasTrains, HasShares {}
 
 export type Image = Promise<string>;
 
-export interface MapLocation {
+export interface MapPosition {
   row: string;
   col: number;
   place?: number; // places on a hex a thing can be, mostly token slots

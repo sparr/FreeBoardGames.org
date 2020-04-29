@@ -4,6 +4,7 @@
  */
 
 import * as types from '../types';
+import * as hexTypes from '../HexTypes';
 
 export const name = '18EU';
 
@@ -178,7 +179,7 @@ export const tiles = [
   [513, 5],
 ];
 
-var stockChart: Array<Array<types.Money>> = [
+var stockChart: types.GridShape<types.Money> = [
   [82, 90, 100, 110, 122, 135, 150, 165, 180, 200, 220, 245, 270, 300, 330, 360, 400],
   [75, 82, 90, 100, 110, 122, 135, 150, 165, 180, 200, 220, 245, 270],
   [70, 75, 82, 90, 100, 110, 122, 135, 150, 165, 180],
@@ -188,9 +189,9 @@ var stockChart: Array<Array<types.Money>> = [
   [40, 50, 60, 65],
 ];
 
-const StockMarket: types.StockMarketData = {};
+const StockMarket: types.StockMarketData = [];
 stockChart.forEach((rowContents, rowNum) => {
-  StockMarket[rowNum] = {};
+  StockMarket[rowNum] = [];
   rowContents.forEach((value, colNum) => {
     StockMarket[rowNum][colNum] = { value: value };
   });
@@ -212,3 +213,253 @@ startingSpaces.map((space) => {
 });
 
 export { StockMarket, StockMarketStartingSpaces };
+
+export const map: hexTypes.GameMap = [
+  [
+    ,
+    ,
+    { color: 'light blue' },
+    { color: 'light blue' },
+    { color: 'dark blue', icon: 'anchor', revenue: 10, offboardConnections: [3] },
+  ],
+  [
+    { color: 'light blue' },
+    { color: 'red', name: 'London', revenues: [40, 70], offboardConnections: [2, 3] },
+    { color: 'light blue' },
+    { color: 'light green', name: 'Rotterdam', stop: {} },
+    { color: 'light green', name: 'Amsterdam', letters: 'Y', stop: { tokens: 1, tokenLabels: ['12'] } },
+    { color: 'light blue' },
+    { color: 'light blue' },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Lille', stop: {} },
+    { color: 'light green', name: 'Antwerp', stop: {} },
+    { color: 'light green', name: 'Utrecht', stop: {} },
+    { color: 'light green' },
+    { color: 'light green', name: 'Bremen', stop: {} },
+    {
+      color: 'red',
+      name: 'Hamburg',
+      revenues: [30, 50],
+      connections: [
+        [2, 3],
+        [2, 4],
+        [3, 4],
+      ],
+    },
+    { color: 'light blue' },
+  ],
+  [
+    { color: 'dark green' },
+    {
+      color: 'yellow',
+      name: 'Paris',
+      letters: 'P',
+      stops: [
+        { tokens: 1, revenue: 40, tokenLabels: ['1'] },
+        { tokens: 1, revenue: 40, tokenLabels: ['3'] },
+      ],
+      connections: [
+        [1, -1],
+        [2, -2],
+      ],
+    },
+    { color: 'light green' },
+    {
+      color: 'light green',
+      border: 'grey, dotted',
+      name: 'Brussels',
+      letters: 'Y',
+      stop: { tokens: 1, tokenLabels: ['2'] },
+    },
+    { color: 'light green', name: 'Cologne', stop: { tokens: 1 } },
+    { color: 'light green', name: 'Dortmund', stop: { tokens: 1 } },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light blue' },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green' },
+    { color: 'light green', border: 'grey, dotted' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Hannover', stop: {} },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light blue' },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Dijon', stop: {} },
+    { color: 'light green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green', name: 'Frankfurt', stop: { tokens: 1 } },
+    { color: 'light green' },
+    { color: 'light green', name: 'Magdeburg', stop: {} },
+    { color: 'light green', border: 'grey, dotted' },
+    {
+      color: 'yellow',
+      name: 'Berlin',
+      letters: 'B',
+      stops: [
+        { tokens: 1, revenue: 30, tokenLabels: ['7'] },
+        { tokens: 1, revenue: 30, tokenLabels: ['9'] },
+      ],
+      connections: [
+        [1, -2],
+        [4, -1],
+      ],
+    },
+    { color: 'light green', name: 'Stettin', stop: {} },
+    { color: 'dark green' },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Strasbourg', letters: 'Y', stop: { tokens: 1, tokenLabels: ['14'] } },
+    { color: 'light green', name: 'Stuttgart', stop: {} },
+    { color: 'light green', name: 'Augsburg', stop: {} },
+    { color: 'light green', name: 'Nuremberg', stop: {} },
+    { color: 'light green' },
+    { color: 'light green', name: 'Leipzig', stop: {} },
+    { color: 'light green', name: 'Dresden', letters: 'Y', stop: { tokens: 1, tokenLabels: ['4'] } },
+    { color: 'light green' },
+    { color: 'light green', name: 'Thorn', stop: {} },
+    { color: 'dark green' },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Lyon', letters: 'Y', stop: { tokens: 1, tokenLabels: ['15'] } },
+    { color: 'light green', name: 'Geneva', stop: {} },
+    { color: 'light green', name: 'Basel', stop: {} },
+    { color: 'light green', name: 'Zurich', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green', name: 'Munich', letters: 'Y', stop: { tokens: 1, tokenLabels: ['13'] } },
+    { color: 'light green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'red', name: 'Warsaw', revenues: [20, 30], offboardConnections: [4] },
+  ],
+  [
+    { color: 'dark green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Marseille', stop: { tokens: 1 } },
+    { color: 'light green', letters: 'M', name: 'Fréjus', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', letters: 'M', name: 'Lötschberg', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', letters: 'M', name: 'Simplon', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Prague', stop: { tokens: 1 } },
+    { color: 'light green' },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'dark green' },
+  ],
+  [
+    ,
+    { color: 'light blue' },
+    { color: 'dark blue', icon: 'anchor', revenue: 10, offboardConnections: [0] },
+    { color: 'light green', name: 'Nice', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Turin', stop: { tokens: 1 } },
+    { color: 'light green', name: 'Milan', letters: 'Y', stop: { tokens: 1, tokenLabels: ['10'] } },
+    { color: 'light green', letters: 'M', name: 'Gotthard', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Innsbruck', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Salzburg', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green', name: 'Brünn', stop: {} },
+    { color: 'light green' },
+    { color: 'light green', name: 'Krakau', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'dark green' },
+  ],
+  [
+    ,
+    ,
+    ,
+    { color: 'light blue' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Genoa', stop: { tokens: 1 } },
+    { color: 'light green', border: 'grey, dotted' },
+    { color: 'light green', letters: 'M', name: 'Albula', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', letters: 'M', name: 'Brenner', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', letters: 'M', name: 'Ariberg', icon: 'large mountain', upgradeCost: 120 },
+    { color: 'light green', letters: 'M', name: 'Tauern', icon: 'large mountain', upgradeCost: 120 },
+    {
+      color: 'yellow',
+      name: 'Vienna',
+      letters: 'V',
+      stops: [
+        { tokens: 1, revenue: 30, tokenLabels: ['6'] },
+        { tokens: 1, revenue: 30, tokenLabels: ['11'] },
+      ],
+      connections: [
+        [0, -1],
+        [3, -2],
+      ],
+    },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'dark green' },
+  ],
+  [
+    ,
+    ,
+    ,
+    ,
+    { color: 'light blue' },
+    { color: 'dark blue', icon: 'anchor', revenue: 10, offboardConnections: [0] },
+    { color: 'light green', name: 'Florence', stop: {}, border: 'grey, dotted' },
+    { color: 'light green', name: 'Bologna', stop: {} },
+    { color: 'light green', name: 'Venice', letters: 'Y', stop: { tokens: 1, tokenLabels: ['5'] } },
+    { color: 'light green', name: 'Trieste', stop: { tokens: 1 } },
+    { color: 'light green' },
+    { color: 'yellow', name: 'Semmering', letters: 'M', icon: 'mountain', upgradeCost: 60, connections: [[0, 4]] },
+    { color: 'light green', name: 'Pressburg', stop: {}, icon: 'mountain', upgradeCost: 60 },
+    { color: 'light green' },
+    { color: 'dark green' },
+  ],
+  [
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    { color: 'light blue' },
+    { color: 'red', name: 'Rome', revenues: [30, 50], offboardConnections: [0, 1, 5] },
+    { color: 'light blue' },
+    { color: 'dark blue', icon: 'anchor', revenue: 10, offboardConnections: [0] },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green' },
+    { color: 'light green', name: 'Budapest', letters: 'Y', stop: { tokens: 1, tokenLabels: ['8'] } },
+    { color: 'dark green' },
+  ],
+  [
+    ,,,,,,,,
+    { color: 'dark green' },
+    { color: 'light blue' },
+    { color: 'light blue' },
+    { color: 'dark green' },
+    { color: 'dark green' },
+    { color: 'dark green' },
+    {color: "red", name: "Bucharest", revenues: [30,50], offboardConnections: [5]},
+  ]
+];
